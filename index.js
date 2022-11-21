@@ -32,8 +32,6 @@ function animate() {
   // clear screen
   context.clearRect(0, 0, width, height);
 
-  if (collided) handleCollision();
-  if (selfCollide) handleEndGame();
   // recalculate and redraw
   handleMovement();
   handleDrawFruit();
@@ -114,15 +112,15 @@ function handleKeyPresses() {
 
 function handleEdgeBounces() {
   if (
-    snake[0].x - snakeSectionDiameter / 2 >= canvasBoundaries[2] ||
-    snake[0].x + snakeSectionDiameter / 2 <= canvasBoundaries[0]
+    snake[0].x + snakeSectionDiameter / 2 > canvasBoundaries[2] ||
+    snake[0].x - snakeSectionDiameter / 2 < canvasBoundaries[0]
   ) {
     if (gameStart) handleEndGame();
     velocity.x *= -1;
   }
   if (
-    snake[0].y - snakeSectionDiameter / 2 >= canvasBoundaries[3] ||
-    snake[0].y + snakeSectionDiameter / 2 <= canvasBoundaries[1]
+    snake[0].y - snakeSectionDiameter / 2 > canvasBoundaries[3] ||
+    snake[0].y + snakeSectionDiameter / 2 < canvasBoundaries[1]
   ) {
     if (gameStart) handleEndGame();
     velocity.y *= -1;
@@ -165,6 +163,7 @@ function collisionDetection() {
     if (i === 0) return;
     item.x == snake[0].x && item.y == snake[0].y ? (selfCollide = true) : false;
   });
+  if (selfCollide) handleEndGame();
 
   const distanceBetweenSnakeHeadAndFruit = getDistance(
     snake[0].x,
@@ -173,9 +172,7 @@ function collisionDetection() {
     fruit.y + snakeSectionDiameter / 2
   );
   if (Math.floor(distanceBetweenSnakeHeadAndFruit) < snakeSectionDiameter - 5) {
-    collided = true;
-  } else {
-    collided = false;
+    handleCollision();
   }
 }
 

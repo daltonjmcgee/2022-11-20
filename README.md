@@ -12,8 +12,10 @@ Play it [here](https://daltonjmcgee.github.io/2022-11-20/).
 - Each time you 'eat' a 'fruit' your snake speeds up slightly.
 - Each time you 'eat' a 'fruit' the play area gets smaller (to a limit).
 
-## Known bugs
-- The gameplay area is wonky and sometimes you lose if you don't quite touch the edge of the screen
-- Sometimes you 'eat' a 'fruit' even if you're a little bit away from it.
-
-
+## Future Features
+- Scoring.
+  - +1 for each fruit eaten
+- Shrinking playable space on every fruit eat.
+- Replace 'fruit' with PNG of various fruits.
+- Diagonal play
+- Difficulty levels
