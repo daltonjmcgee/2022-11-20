@@ -16,16 +16,7 @@ let selfCollide = false;
 let previousXs = [];
 let previousYs = [];
 let gameStart = true;
-let fruit = {
-  x: randomIntFromInterval(
-    snakeSectionDiameter * 2,
-    canvasBoundaries[2] - snakeSectionDiameter
-  ),
-  y: randomIntFromInterval(
-    snakeSectionDiameter * 2,
-    canvasBoundaries[3] - snakeSectionDiameter
-  ),
-};
+let fruit = createFruit();
 let snake = [
   {
     x: Math.floor(width / 2),
@@ -56,7 +47,7 @@ function animate() {
 
   // recalculate and redraw
   handleMovement();
-  handleFruit();
+  handleDrawFruit();
   // setup controls and barriers
   handleEdgeBounces();
   handleKeyPresses();
@@ -154,41 +145,38 @@ function handleEdgeBounces() {
 }
 
 function handleCollision() {
-  fruit = {
-    x: randomIntFromInterval(
-      snakeSectionDiameter * 2,
-      canvasBoundaries[2] - snakeSectionDiameter
-    ),
-    y: randomIntFromInterval(
-      snakeSectionDiameter * 2,
-      canvasBoundaries[3] - snakeSectionDiameter
-    ),
-  };
+  fruit = createFruit();
   snake.push(snake[snake.length - 1]);
   if (defaultVelocity > 25) defaultVelocity -= 0.5;
-  if (
-    canvasBoundaries[0] < width / 4 &&
-    canvasBoundaries[1] < height / 4 &&
-    canvasBoundaries[2] > width - width / 4 &&
-    canvasBoundaries[3] > height - height / 4
-  ) {
-    canvasBoundaries = [
-      canvasBoundaries[0] + snakeSectionDiameter / 4,
-      canvasBoundaries[1] + snakeSectionDiameter / 4,
-      canvasBoundaries[2] - snakeSectionDiameter / 2,
-      canvasBoundaries[3] - snakeSectionDiameter / 2,
-    ];
-  }
+
+  // if (
+  //   canvasBoundaries[0] < width / 4 &&
+  //   canvasBoundaries[1] < height / 4 &&
+  //   canvasBoundaries[2] > width - width / 4 &&
+  //   canvasBoundaries[3] > height - height / 4
+  // ) {
+  //   canvasBoundaries = [
+  //     canvasBoundaries[0] + snakeSectionDiameter / 4,
+  //     canvasBoundaries[1] + snakeSectionDiameter / 4,
+  //     canvasBoundaries[2] - snakeSectionDiameter / 2,
+  //     canvasBoundaries[3] - snakeSectionDiameter / 2,
+  //   ];
+  // }
 }
 
-function handleFruit() {
+function handleDrawFruit() {
   context.beginPath();
   context.rect(fruit.x, fruit.y, snakeSectionDiameter, snakeSectionDiameter);
   context.fill();
 }
 
 function randomIntFromInterval(min, max) {
-  return Math.floor(Math.random() * (max - min + 1) + min);
+  const doubleMin = min * 2;
+  return (
+    Math.floor(
+      Math.floor(Math.random() * (max - doubleMin + 1) + doubleMin) / snakeSectionDiameter
+    ) * snakeSectionDiameter
+  );
 }
 
 function collisionDetection() {
@@ -203,10 +191,10 @@ function collisionDetection() {
     item.x == snake[0].x && item.y == snake[0].y ? (selfCollide = true) : false
   );
   if (
-    x - snakeSectionDiameter <= fruit.x + snakeSectionDiameter &&
-    x + snakeSectionDiameter >= fruit.x - snakeSectionDiameter &&
-    y + snakeSectionDiameter >= fruit.y - snakeSectionDiameter &&
-    y - snakeSectionDiameter <= fruit.y + snakeSectionDiameter
+    x <= fruit.x + snakeSectionDiameter &&
+    x >= fruit.x - snakeSectionDiameter &&
+    y >= fruit.y - snakeSectionDiameter &&
+    y <= fruit.y + snakeSectionDiameter
   ) {
     collided = true;
     selfCollide = false;
@@ -218,6 +206,19 @@ function collisionDetection() {
 function handleEndGame() {
   context.clearRect(0, 0, width, height);
   context.font = "30px Arial";
-  context.fillText("You lose!", width / 2 - 100, height / 2 - 25);
+  context.fillText("You lose!", width / 2 - 50, height / 2 - 25);
   cancelAnimationFrame();
+}
+
+function createFruit(){
+  return {
+    x: randomIntFromInterval(
+      snakeSectionDiameter,
+      canvasBoundaries[2] - snakeSectionDiameter
+    ),
+    y: randomIntFromInterval(
+      snakeSectionDiameter,
+      canvasBoundaries[3] - snakeSectionDiameter
+    ),
+  }
 }
