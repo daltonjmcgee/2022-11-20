@@ -4,10 +4,12 @@ let height = window.innerHeight;
 canvas.setAttribute("width", width);
 canvas.setAttribute("height", height);
 let canvasBoundaries = [0, 0, width, height];
-
 const context = canvas.getContext("2d");
 context.fillStyle = "white";
 context.strokeStyle = "white";
+context.font = "30px Arial";
+
+let fruitsEaten = 0;
 const snakeSectionDiameter = 50;
 let defaultVelocity = 100;
 let velocity = { x: snakeSectionDiameter, y: 0 };
@@ -31,7 +33,7 @@ function animate() {
   }, defaultVelocity);
   // clear screen
   context.clearRect(0, 0, width, height);
-
+  context.fillText(`Score: ${fruitsEaten}`, 15, 45);
   // recalculate and redraw
   handleMovement();
   handleDrawFruit();
@@ -133,7 +135,9 @@ function handleCollision() {
   // Add section onto end of snake array
   snake.push(snake[snake.length - 1]);
   // Reduce time between Timeouts (increase snek velocity)
-  if (defaultVelocity > 25) defaultVelocity -= 0.5;
+  if (defaultVelocity > 25) {
+    defaultVelocity -= 0.5;
+  }
 }
 
 function handleDrawFruit() {
@@ -163,6 +167,7 @@ function collisionDetection() {
     if (i === 0) return;
     item.x == snake[0].x && item.y == snake[0].y ? (selfCollide = true) : false;
   });
+
   if (selfCollide) handleEndGame();
 
   const distanceBetweenSnakeHeadAndFruit = getDistance(
@@ -173,12 +178,12 @@ function collisionDetection() {
   );
   if (Math.floor(distanceBetweenSnakeHeadAndFruit) < snakeSectionDiameter - 5) {
     handleCollision();
+    fruitsEaten += 1;
   }
 }
 
 function handleEndGame() {
   context.clearRect(0, 0, width, height);
-  context.font = "30px Arial";
   context.fillText("You lose!", width / 2 - 50, height / 2 - 25);
   gameStart = false;
 }
