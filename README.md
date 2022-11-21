@@ -13,9 +13,8 @@ Play it [here](https://daltonjmcgee.github.io/2022-11-20/).
 - Each time you 'eat' a 'fruit' the play area gets smaller (to a limit).
 
 ## Future Features
-- Scoring.
-  - +1 for each fruit eaten
 - Shrinking playable space on every fruit eat.
 - Replace 'fruit' with PNG of various fruits.
 - Diagonal play
 - Difficulty levels
+- Add timer
