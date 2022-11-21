@@ -3,48 +3,37 @@ let width = window.innerWidth;
 let height = window.innerHeight;
 canvas.setAttribute("width", width);
 canvas.setAttribute("height", height);
-let canvasBoundaries = [2, 2, width - 2, height - 2];
+let canvasBoundaries = [0, 0, width, height];
 
 const context = canvas.getContext("2d");
 context.fillStyle = "white";
 context.strokeStyle = "white";
-const snakeSectionDiameter = 40;
+const snakeSectionDiameter = 50;
 let defaultVelocity = 100;
-let velocity = { x: snakeSectionDiameter / 2, y: 0 };
+let velocity = { x: snakeSectionDiameter, y: 0 };
 let collided = false;
 let selfCollide = false;
-let previousXs = [];
-let previousYs = [];
 let gameStart = true;
-let fruit = createFruit();
+let fruit = setFruitLocation();
 let snake = [
   {
-    x: Math.floor(width / 2),
-    y: Math.floor(height / 2),
+    x: snakeSectionDiameter * 5.5,
+    y: snakeSectionDiameter * 5.5,
   },
+  {},
 ];
 let canvasWidth = width;
 let canvasHeight = height;
 
 function animate() {
   setTimeout(() => {
-    const frame = requestAnimationFrame(animate);
+    if (gameStart) requestAnimationFrame(animate);
   }, defaultVelocity);
-
   // clear screen
   context.clearRect(0, 0, width, height);
 
-  context.rect(
-    canvasBoundaries[0],
-    canvasBoundaries[1],
-    canvasBoundaries[2],
-    canvasBoundaries[3]
-  );
-  context.stroke();
-
   if (collided) handleCollision();
   if (selfCollide) handleEndGame();
-
   // recalculate and redraw
   handleMovement();
   handleDrawFruit();
@@ -56,13 +45,13 @@ function animate() {
 animate();
 
 function handleMovement() {
-  // Add new snake bit to the front of the array
-  snake.unshift({ x: snake[0].x + velocity.x, y: snake[0].y + velocity.y });
   // Remove last snake bit from end of the array
   snake.pop();
-
+  // Add new snake bit to the front of the array
+  snake.unshift({ x: snake[0].x + velocity.x, y: snake[0].y + velocity.y });
   collisionDetection();
 
+  // Draw snek
   for (let i = 0; i < snake.length; i++) {
     context.beginPath();
     context.arc(
@@ -101,23 +90,19 @@ function handleKeyPresses() {
           }
         } else {
           if (e.key === "ArrowRight") {
-            if (velocity.y || snake.length === 1)
-              velocity.x = snakeSectionDiameter;
+            if (velocity.y) velocity.x = snakeSectionDiameter;
             velocity.y = 0;
           }
           if (e.key === "ArrowLeft") {
-            if (velocity.y || snake.length === 1)
-              velocity.x = -snakeSectionDiameter;
+            if (velocity.y) velocity.x = -snakeSectionDiameter;
             velocity.y = 0;
           }
           if (e.key === "ArrowDown") {
-            if (velocity.x || snake.length === 1)
-              velocity.y = snakeSectionDiameter;
+            if (velocity.x) velocity.y = snakeSectionDiameter;
             velocity.x = 0;
           }
           if (e.key === "ArrowUp") {
-            if (velocity.x || snake.length === 1)
-              velocity.y = -snakeSectionDiameter;
+            if (velocity.x) velocity.y = -snakeSectionDiameter;
             velocity.x = 0;
           }
         }
@@ -145,28 +130,22 @@ function handleEdgeBounces() {
 }
 
 function handleCollision() {
-  fruit = createFruit();
+  // Move fruit
+  fruit = setFruitLocation();
+  // Add section onto end of snake array
   snake.push(snake[snake.length - 1]);
+  // Reduce time between Timeouts (increase snek velocity)
   if (defaultVelocity > 25) defaultVelocity -= 0.5;
-
-  // if (
-  //   canvasBoundaries[0] < width / 4 &&
-  //   canvasBoundaries[1] < height / 4 &&
-  //   canvasBoundaries[2] > width - width / 4 &&
-  //   canvasBoundaries[3] > height - height / 4
-  // ) {
-  //   canvasBoundaries = [
-  //     canvasBoundaries[0] + snakeSectionDiameter / 4,
-  //     canvasBoundaries[1] + snakeSectionDiameter / 4,
-  //     canvasBoundaries[2] - snakeSectionDiameter / 2,
-  //     canvasBoundaries[3] - snakeSectionDiameter / 2,
-  //   ];
-  // }
 }
 
 function handleDrawFruit() {
   context.beginPath();
-  context.rect(fruit.x, fruit.y, snakeSectionDiameter, snakeSectionDiameter);
+  context.rect(
+    fruit.x,
+    fruit.y,
+    snakeSectionDiameter - 3,
+    snakeSectionDiameter - 3
+  );
   context.fill();
 }
 
@@ -174,30 +153,27 @@ function randomIntFromInterval(min, max) {
   const doubleMin = min * 2;
   return (
     Math.floor(
-      Math.floor(Math.random() * (max - doubleMin + 1) + doubleMin) / snakeSectionDiameter
+      Math.floor(Math.random() * (max - doubleMin + 1) + doubleMin) /
+        snakeSectionDiameter
     ) * snakeSectionDiameter
   );
 }
 
 function collisionDetection() {
-  const x = snake[0].x;
-  const y = snake[0].y;
-  // Create temporary snake to check against
-  const tempSnake = [...snake];
-  // Remove index 0
-  tempSnake.shift();
   // Check the Xs and Ys for each snake section against head
-  tempSnake.forEach((item) =>
-    item.x == snake[0].x && item.y == snake[0].y ? (selfCollide = true) : false
+  snake.forEach((item, i) => {
+    if (i === 0) return;
+    item.x == snake[0].x && item.y == snake[0].y ? (selfCollide = true) : false;
+  });
+
+  const distanceBetweenSnakeHeadAndFruit = getDistance(
+    snake[0].x,
+    snake[0].y,
+    fruit.x + snakeSectionDiameter / 2,
+    fruit.y + snakeSectionDiameter / 2
   );
-  if (
-    x <= fruit.x + snakeSectionDiameter &&
-    x >= fruit.x - snakeSectionDiameter &&
-    y >= fruit.y - snakeSectionDiameter &&
-    y <= fruit.y + snakeSectionDiameter
-  ) {
+  if (Math.floor(distanceBetweenSnakeHeadAndFruit) < snakeSectionDiameter - 5) {
     collided = true;
-    selfCollide = false;
   } else {
     collided = false;
   }
@@ -207,10 +183,10 @@ function handleEndGame() {
   context.clearRect(0, 0, width, height);
   context.font = "30px Arial";
   context.fillText("You lose!", width / 2 - 50, height / 2 - 25);
-  cancelAnimationFrame();
+  gameStart = false;
 }
 
-function createFruit(){
+function setFruitLocation() {
   return {
     x: randomIntFromInterval(
       snakeSectionDiameter,
@@ -220,5 +196,22 @@ function createFruit(){
       snakeSectionDiameter,
       canvasBoundaries[3] - snakeSectionDiameter
     ),
-  }
+  };
+}
+
+function getDistance(x1, y1, x2, y2) {
+  let y = x2 - x1;
+  let x = y2 - y1;
+
+  return Math.sqrt(x * x + y * y);
+}
+
+function drawLine() {
+  context.moveTo(
+    fruit.x + snakeSectionDiameter / 2,
+    fruit.y + snakeSectionDiameter / 2
+  );
+  context.lineTo(snake[0].x, snake[0].y);
+  context.fillStyle = "red";
+  context.stroke();
 }
