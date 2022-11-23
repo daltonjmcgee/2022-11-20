@@ -17,4 +17,8 @@ Play it [here](https://daltonjmcgee.github.io/2022-11-20/).
 - Replace 'fruit' with PNG of various fruits.
 - Diagonal play
 - Difficulty levels
-- Add timer
+- Change scoring to be based on how long it takes to eat a fruit
+
+## Updates
+#### 11/22/2022
+- Added fruit PNGs from https://srmp1.itch.io/32x32-fruit.
