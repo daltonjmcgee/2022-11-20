@@ -36,10 +36,10 @@ function animate() {
   context.fillText(`Score: ${fruitsEaten}`, 15, 45);
   // recalculate and redraw
   handleMovement();
-  handleDrawFruit();
   // setup controls and barriers
   handleEdgeBounces();
   handleKeyPresses();
+  handleDrawFruit();
 }
 
 animate();
@@ -141,14 +141,13 @@ function handleCollision() {
 }
 
 function handleDrawFruit() {
-  context.beginPath();
-  context.rect(
-    fruit.x,
-    fruit.y,
-    snakeSectionDiameter - 3,
-    snakeSectionDiameter - 3
-  );
-  context.fill();
+  const image = new Image();
+  image.src = `fruits/${fruit.id}.png`;
+  image.onload = () => context.drawImage(image, fruit.x, fruit.y, 40, 40);
+}
+
+function random1to5() {
+  return Math.floor(Math.random() * 5 + 1);
 }
 
 function randomIntFromInterval(min, max) {
@@ -185,11 +184,13 @@ function collisionDetection() {
 function handleEndGame() {
   context.clearRect(0, 0, width, height);
   context.fillText("You lose!", width / 2 - 50, height / 2 - 25);
+  context.fillText(`Your score was ${fruitsEaten}`, width / 2 - 108, height / 2 + 25);
   gameStart = false;
 }
 
 function setFruitLocation() {
   return {
+    id: random1to5(),
     x: randomIntFromInterval(
       snakeSectionDiameter,
       canvasBoundaries[2] - snakeSectionDiameter
