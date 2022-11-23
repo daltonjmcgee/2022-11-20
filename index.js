@@ -32,7 +32,15 @@ function animate() {
     if (gameStart) requestAnimationFrame(animate);
   }, defaultVelocity);
   // clear screen
-  context.clearRect(0, 0, width, height);
+  context.clearRect(0, 0, 150, 150);
+  snake.forEach((section) => {
+    context.clearRect(
+      section.x - snakeSectionDiameter / 2 - 1,
+      section.y - snakeSectionDiameter / 2 - 1,
+      snakeSectionDiameter + 2,
+      snakeSectionDiameter + 2
+    );
+  });
   context.fillText(`Score: ${fruitsEaten}`, 15, 45);
   // recalculate and redraw
   handleMovement();
@@ -184,7 +192,11 @@ function collisionDetection() {
 function handleEndGame() {
   context.clearRect(0, 0, width, height);
   context.fillText("You lose!", width / 2 - 50, height / 2 - 25);
-  context.fillText(`Your score was ${fruitsEaten}`, width / 2 - 108, height / 2 + 25);
+  context.fillText(
+    `Your score was ${fruitsEaten}`,
+    width / 2 - 108,
+    height / 2 + 25
+  );
   gameStart = false;
 }
 
@@ -192,11 +204,11 @@ function setFruitLocation() {
   return {
     id: random1to5(),
     x: randomIntFromInterval(
-      snakeSectionDiameter,
+      150 + snakeSectionDiameter,
       canvasBoundaries[2] - snakeSectionDiameter
     ),
     y: randomIntFromInterval(
-      snakeSectionDiameter,
+      150 + snakeSectionDiameter,
       canvasBoundaries[3] - snakeSectionDiameter
     ),
   };
